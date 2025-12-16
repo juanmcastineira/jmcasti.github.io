@@ -31,40 +31,40 @@ xxxxxxxxxxxxxxx
 
 Quiero saber que productos le ganan al promedio de venta de productos 
 
-SELECT 
-    item_purchase, 
-    size, 
-    colour, 
-    SUM(price_amount) AS Total
-FROM raw
-GROUP BY 
-    item_purchase, 
-    size, 
-    colour
-HAVING SUM(price_amount) > (
-    SELECT AVG(sub.totalb)
-    FROM (
-        SELECT SUM(price_amount) AS totalb
-        FROM raw
-        GROUP BY item_purchase, size, colour
-    ) AS sub
-);
+>SELECT 
+>    item_purchase, 
+>    size, 
+>    colour, 
+>    SUM(price_amount) AS Total
+>FROM raw
+>GROUP BY 
+>    item_purchase, 
+>    size, 
+>    colour
+>HAVING SUM(price_amount) > (
+>    SELECT AVG(sub.totalb)
+>    FROM (
+>        SELECT SUM(price_amount) AS totalb
+>        FROM raw
+>        GROUP BY item_purchase, size, colour
+>    ) AS sub
+>);
 
 dando 
 xxxxxxxxxxxxxxxxxxx
 
 El objetivo es identificar variables determinantes en el Rating. Para ello, se segmentó a los clientes en el percentil superior (Top 10%) y se contrastó la distribución de sus atributos frente al promedio poblacional. El objetivo es identificar desviaciones significativas que sugieran una correlación entre ciertos factores y un Rating elevado.
 
-WITH segmentacion AS(
-SELECT  *, CASE WHEN PERCENT_RANK() OVER( PARTITION BY Review_Rating) >= 0.9 AS 'top' else 'general' END AS segmentacion_cliente)
-FROM sh_v
+>WITH segmentacion AS(
+>SELECT  *, CASE WHEN PERCENT_RANK() OVER( PARTITION BY Review_Rating) >= 0.9 AS 'top' else 'general' END AS segmentacion_cliente)
+>FROM sh_v
 
 Luego aplico el siguiente querry para los parametros de Subscription_Status,Category, Discount_Applied, Payment_Method, Cluster_Edad y Shipping_type para ver si hay desviaciones.
 
-SELECT 
-subscription_Status, COUNT(CASE WHEN segmentacion_cliente ='top' THEN 1 END)*1.0)/COUNT(*) FILTER ( WHEN segmentacion_cliente = 'top') as percent_top, COUNT(CASE WHEN segmentacion_cliente ='general' THEN 1 END)*1.0)/COUNT(*) FILTER ( WHEN segmentacion_cliente = 'general') as percent_gral
-FROM segmentacion
-GROUP BY subscription_Status
+>SELECT 
+>subscription_Status, COUNT(CASE WHEN segmentacion_cliente ='top' THEN 1 END)*1.0)/COUNT(*) FILTER ( WHEN segmentacion_cliente = 'top') as percent_top, COUNT(CASE WHEN segmentacion_cliente ='general' THEN 1 END)*1.0)/COUNT(*) FILTER ( WHEN segmentacion_cliente = 'general') as percent_gral
+>FROM segmentacion
+>GROUP BY subscription_Status
 
 Los resultados son los siguientes
 
